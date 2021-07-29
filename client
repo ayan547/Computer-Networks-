@@ -1,0 +1,46 @@
+#include <sys/types.h>     
+#include <sys/socket.h>
+#include<stdio.h>
+#include <arpa/inet.h>
+#include<unistd.h>
+#include<string.h>
+int main()
+{
+
+      int sockfd,bnd,l2,flag=0;
+	char str1[100],str[100];
+     sockfd=socket(AF_INET,SOCK_DGRAM,0);
+      if(sockfd>0){
+	printf("Socket is created : %d\n",sockfd);
+	}
+      else{
+printf("Socket is not created\n");
+}
+ struct sockaddr_in server;
+server.sin_family=AF_INET;
+server.sin_port=htons(5000);
+server.sin_addr.s_addr=inet_addr("127.0.0.1");
+ bnd=bind(sockfd, (const struct sockaddr *) &server,sizeof(server));
+if(bnd==0)
+printf("Bind is successful : %d\n",bnd);
+else
+printf("Bind is unsuccessful\n");
+while (1) {
+printf("Enter the string to send to server :\n");
+gets(str);
+sendto(sockfd, str , strlen(str), 0,
+                      (const struct sockaddr *) &server, sizeof(server));
+if(strcmp(str,"exit")==0){
+break;
+}
+l2=sizeof(server);
+recvfrom(sockfd, str1, sizeof(str1), 0,
+                        (struct sockaddr *) &server, &l2);
+printf("String recieved from server : %s\n",str1);
+if(strcmp(str1,"exit")==0)
+break;
+memset(str1,0,sizeof(str1));
+}
+
+close (sockfd);
+}
